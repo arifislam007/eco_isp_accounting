@@ -1,0 +1,208 @@
+:root {
+  --app-bg: #f4f7fb;
+  --app-surface: #ffffff;
+  --app-ink: #172033;
+  --app-muted: #63708a;
+  --app-border: #dbe3ef;
+  --app-accent: #0d6efd;
+  --app-accent-2: #20c997;
+  --app-accent-3: #6f42c1;
+}
+
+body.app-shell {
+  background: linear-gradient(180deg, #f8fbff 0%, #eef3f9 100%);
+  color: var(--app-ink);
+}
+
+.app-nav {
+  background: linear-gradient(90deg, #0b1324 0%, #18263f 100%);
+}
+
+.panel-card,
+.login-card,
+.stat-card {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 1.25rem;
+}
+
+.panel-card {
+  padding: 1.25rem;
+  box-shadow: 0 0.75rem 2rem rgba(23, 32, 51, 0.06);
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  min-height: 100%;
+  box-shadow: 0 0.75rem 2rem rgba(23, 32, 51, 0.06);
+}
+
+.stat-icon {
+  width: 3rem;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--app-accent), #4f8cff);
+}
+
+.stat-label {
+  color: var(--app-muted);
+  font-size: 0.875rem;
+}
+
+.stat-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.card-collection .stat-icon { background: linear-gradient(135deg, #0d6efd, #5f9cff); }
+.card-commission .stat-icon { background: linear-gradient(135deg, #6f42c1, #9a6fe8); }
+.card-deposit .stat-icon { background: linear-gradient(135deg, #198754, #20c997); }
+.card-due .stat-icon { background: linear-gradient(135deg, #dc3545, #ff7a85); }
+.card-profit .stat-icon { background: linear-gradient(135deg, #fd7e14, #ffb357); }
+
+.business-table thead th {
+  white-space: nowrap;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--app-muted);
+}
+
+.login-page {
+  min-height: 100vh;
+  background: #0b1324;
+  overflow: hidden;
+}
+
+.login-background {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at top left, rgba(13, 110, 253, 0.30), transparent 36%),
+    radial-gradient(circle at bottom right, rgba(32, 201, 151, 0.22), transparent 28%),
+    linear-gradient(180deg, #08101f 0%, #101b2f 100%);
+}
+
+.login-card {
+  max-width: 520px;
+  width: 100%;
+  position: relative;
+}
+
+.col-xl-2-4 {
+  flex: 0 0 auto;
+  width: 20%;
+}
+
+.dashboard-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dashboard-widget {
+  position: relative;
+  min-width: 0;
+}
+
+.dashboard-widget-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.25rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--app-muted);
+  margin-bottom: 0.35rem;
+}
+
+.dashboard-layout.rearrange-enabled .dashboard-widget {
+  cursor: move;
+  border: 1px dashed #9db0cf;
+  border-radius: 0.85rem;
+  padding: 0.4rem;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.dashboard-layout.rearrange-enabled .dashboard-widget .dashboard-widget-meta {
+  display: block !important;
+}
+
+.dashboard-layout.rearrange-enabled .dashboard-widget.drag-over {
+  border-color: #0d6efd;
+  background: rgba(13, 110, 253, 0.08);
+}
+
+.dashboard-layout.rearrange-enabled .dashboard-widget.is-dragging {
+  opacity: 0.65;
+}
+
+.dashboard-mobile-hint {
+  display: none;
+}
+
+.widget-move-controls .btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 1199.98px) {
+  .col-xl-2-4 {
+    width: 50%;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .panel-card {
+    padding: 1rem;
+  }
+
+  .stat-card {
+    padding: 0.9rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .col-xl-2-4 {
+    width: 100%;
+  }
+
+  .dashboard-mobile-hint {
+    display: block;
+  }
+
+  .dashboard-widget-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .widget-move-controls {
+    width: 100%;
+  }
+
+  .widget-move-controls .btn {
+    flex: 1 1 50%;
+  }
+
+  .table-responsive {
+    border-radius: 0.75rem;
+  }
+
+  .panel-card {
+    padding: 0.9rem;
+  }
+
+  .stat-value {
+    font-size: 1.15rem;
+  }
+
+  .stat-card {
+    gap: 0.75rem;
+  }
+}

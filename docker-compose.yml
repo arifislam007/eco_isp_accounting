@@ -1,0 +1,53 @@
+services:
+  php-apache:
+    build:
+      context: .
+    container_name: isp_billing_app
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - mysql
+    environment:
+      APP_NAME: ISP Billing Dashboard
+      APP_URL: http://localhost:8080
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: isp_billing
+      DB_USER: isp_user
+      DB_PASS: isp_secret
+      DB_CHARSET: utf8mb4
+      APP_TIMEZONE: Asia/Dhaka
+
+  mysql:
+    image: mariadb:11.4
+    container_name: isp_billing_mysql
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: isp_billing
+      MARIADB_USER: isp_user
+      MARIADB_PASSWORD: isp_secret
+      MARIADB_ROOT_PASSWORD: root_secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: isp_billing_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    ports:
+      - "8081:80"
+
+volumes:
+  mysql_data:
