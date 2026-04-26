@@ -29,8 +29,8 @@ services:
       MARIADB_USER: isp_user
       MARIADB_PASSWORD: isp_secret
       MARIADB_ROOT_PASSWORD: root_secret
-    ports:
-      - "3306:3306"
+    # ports:
+    #   - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
