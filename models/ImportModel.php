@@ -19,6 +19,14 @@ class ImportModel extends BaseModel
         return (int) $this->pdo->lastInsertId();
     }
 
+    public function deleteBusiness(int $businessId): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM businesses WHERE id = :id');
+        $stmt->execute([
+            'id' => $businessId,
+        ]);
+    }
+
     public function insertCollection(int $businessId, int $totalUsers, float $totalCollection, string $month): void
     {
         $stmt = $this->pdo->prepare(

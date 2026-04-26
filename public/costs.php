@@ -24,10 +24,11 @@ require __DIR__ . '/../views/layout/header.php';
 <div class="row g-3 mb-4">
     <?php
     $cards = [
+        ['label' => 'Income From Business', 'value' => $dashboardData['summary']['total_collection'], 'icon' => 'fa-coins', 'class' => 'card-collection'],
+        ['label' => 'Total Cost', 'value' => $dashboardData['summary']['total_cost'], 'icon' => 'fa-receipt', 'class' => 'card-deposit'],
         ['label' => 'ISP Bill', 'value' => $dashboardData['summary']['isp_bill'], 'icon' => 'fa-tower-broadcast', 'class' => 'card-collection'],
         ['label' => 'Software Cost', 'value' => $dashboardData['summary']['software_cost'], 'icon' => 'fa-laptop-code', 'class' => 'card-commission'],
         ['label' => 'Others', 'value' => $dashboardData['summary']['others'], 'icon' => 'fa-ellipsis', 'class' => 'card-due'],
-        ['label' => 'Total Cost', 'value' => $dashboardData['summary']['total_cost'], 'icon' => 'fa-receipt', 'class' => 'card-deposit'],
         ['label' => 'Profit', 'value' => $dashboardData['summary']['profit'], 'icon' => 'fa-chart-line', 'class' => 'card-profit'],
     ];
     foreach ($cards as $card):
@@ -107,9 +108,10 @@ require __DIR__ . '/../views/layout/header.php';
                 <div class="col-12 col-md-4">
                     <label class="form-label">Cost Type</label>
                     <select class="form-select" name="cost_type" required>
-                        <option value="ISP Bill">ISP Bill</option>
-                        <option value="Software Cost">Software Cost</option>
-                        <option value="Others">Others</option>
+                        <option value="ISP Bill Payment">ISP Bill Payment</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Electricity Bill">Electricity Bill</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
                 <div class="col-12 col-md-4">
@@ -127,12 +129,22 @@ require __DIR__ . '/../views/layout/header.php';
         </div>
     </div>
     <div class="col-12 col-xl-5">
-        <div class="panel-card">
-            <h2 class="h5 mb-3">Monthly Cost Breakdown</h2>
+        <div class="panel-card mb-4">
+            <h2 class="h5 mb-3">Monthly Summary</h2>
             <div class="vstack gap-2">
-                <div class="d-flex justify-content-between"><span>ISP Bill</span><strong><?php echo money($dashboardData['summary']['isp_bill']); ?></strong></div>
-                <div class="d-flex justify-content-between"><span>Software Cost</span><strong><?php echo money($dashboardData['summary']['software_cost']); ?></strong></div>
-                <div class="d-flex justify-content-between"><span>Others</span><strong><?php echo money($dashboardData['summary']['others']); ?></strong></div>
+                <div class="d-flex justify-content-between"><span>Last Month Due</span><strong><?php echo money($dashboardData['summary']['carry_forward_due'] ?? 0); ?></strong></div>
+                <div class="d-flex justify-content-between"><span>Current Month Due</span><strong><?php echo money($dashboardData['summary']['monthly_due'] ?? $dashboardData['summary']['total_due']); ?></strong></div>
+                <div class="d-flex justify-content-between"><span>Total Due</span><strong><?php echo money($dashboardData['summary']['total_due']); ?></strong></div>
+                <div class="d-flex justify-content-between"><span>Discount</span><strong><?php echo money($dashboardData['summary']['discount_total'] ?? 0); ?></strong></div>
+            </div>
+        </div>
+        <div class="panel-card">
+            <h2 class="h5 mb-3">Cost Breakdown</h2>
+            <div class="vstack gap-2">
+                <div class="d-flex justify-content-between"><span>ISP Bill Payment</span><strong><?php echo money($dashboardData['summary']['isp_bill']); ?></strong></div>
+                <div class="d-flex justify-content-between"><span>Salary</span><strong><?php echo money($dashboardData['summary']['salary_cost'] ?? 0); ?></strong></div>
+                <div class="d-flex justify-content-between"><span>Electricity Bill</span><strong><?php echo money($dashboardData['summary']['electricity_cost'] ?? 0); ?></strong></div>
+                <div class="d-flex justify-content-between"><span>Other</span><strong><?php echo money($dashboardData['summary']['others']); ?></strong></div>
                 <div class="d-flex justify-content-between border-top pt-2 mt-2"><span>Total Cost</span><strong><?php echo money($dashboardData['summary']['total_cost']); ?></strong></div>
                 <div class="d-flex justify-content-between text-success border-top pt-2 mt-2"><span>Profit</span><strong><?php echo money($dashboardData['summary']['profit']); ?></strong></div>
             </div>

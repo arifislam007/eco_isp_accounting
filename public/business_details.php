@@ -109,14 +109,6 @@ require __DIR__ . '/../views/layout/header.php';
         </div>
     </div>
     <div class="col-12 col-xl-4">
-        <div class="panel-card mb-4">
-            <h2 class="h5 mb-3">Monthly Summary</h2>
-            <div class="vstack gap-2">
-                <div class="d-flex justify-content-between"><span>Due Before Bonus</span><strong><?php echo money($details['summary']['due_before_bonus']); ?></strong></div>
-                <div class="d-flex justify-content-between"><span>Deposit by 15th</span><strong><?php echo money($details['summary']['deposit_by_15th']); ?></strong></div>
-                <div class="d-flex justify-content-between"><span>Discount</span><strong><?php echo money($details['summary']['discount']); ?></strong></div>
-            </div>
-        </div>
         <div class="panel-card">
             <h2 class="h5 mb-3">Cost Rows</h2>
             <ul class="list-group list-group-flush">
@@ -160,8 +152,12 @@ require __DIR__ . '/../views/layout/header.php';
                         <input type="text" name="type" id="editDepositType" class="form-control" required>
                     </div>
                     <div class="col-12 col-md-6">
-                        <label class="form-label">Medium</label>
-                        <input type="text" name="medium" id="editDepositMedium" class="form-control" required>
+                        <label class="form-label">Payment Method</label>
+                        <select name="medium" id="editDepositMedium" class="form-select" required>
+                            <option value="bKash">bKash</option>
+                            <option value="cash">cash</option>
+                            <option value="Bank">Bank</option>
+                        </select>
                     </div>
                     <div class="col-12">
                         <label class="form-label">Reference</label>

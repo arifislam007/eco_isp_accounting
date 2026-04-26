@@ -149,6 +149,11 @@ function buildPdf(reportType) {
     return doc;
   }
 
+  if (reportType === 'report') {
+    renderReportPdf(doc, reportData);
+    return doc;
+  }
+
   if (reportType === 'business') {
     renderBusinessPdf(doc, reportData);
     return doc;
@@ -195,6 +200,43 @@ function renderDashboardPdf(doc, reportData) {
   }
 }
 
+function renderReportPdf(doc, reportData) {
+  const title = reportData.title || 'Monthly Report';
+  const billInfo = extractTableData('reportBillTable', { excludeHeadings: ['Action'] });
+  const paymentInfo = extractTableData('reportPaymentTable');
+
+  doc.setFontSize(16);
+  doc.text(title, 36, 36);
+  doc.setFontSize(10);
+  doc.text(`Generated: ${new Date().toLocaleString()}`, 36, 54);
+
+  if (billInfo.head.length && doc.autoTable) {
+    doc.autoTable({
+      head: [billInfo.head],
+      body: billInfo.body,
+      startY: 74,
+      theme: 'striped',
+      styles: { fontSize: 7, cellPadding: 3 },
+      headStyles: { fillColor: [24, 38, 63] },
+      margin: { left: 24, right: 300 },
+      tableWidth: 320,
+    });
+  }
+
+  if (paymentInfo.head.length && doc.autoTable) {
+    doc.autoTable({
+      head: [paymentInfo.head],
+      body: paymentInfo.body,
+      startY: 74,
+      theme: 'striped',
+      styles: { fontSize: 7, cellPadding: 3 },
+      headStyles: { fillColor: [32, 201, 151] },
+      margin: { left: 350, right: 24 },
+      tableWidth: 470,
+    });
+  }
+}
+
 function renderBusinessPdf(doc, reportData) {
   const title = reportData.title || 'Business Report';
   const summaryRows = Array.from(document.querySelectorAll('.panel-card .text-muted.small.text-uppercase')).map((node) => {
@@ -218,7 +260,7 @@ function renderBusinessPdf(doc, reportData) {
     });
   }
 
-  const deposits = extractTableData('businessDepositTable');
+  const deposits = extractTableData('businessDepositTable', { excludeHeadings: ['Action'] });
   if (deposits.head.length && doc.autoTable) {
     doc.autoTable({
       head: [deposits.head],
@@ -232,16 +274,23 @@ function renderBusinessPdf(doc, reportData) {
   }
 }
 
-function extractTableData(tableId) {
+function extractTableData(tableId, options = {}) {
   const table = document.getElementById(tableId);
   if (!table) {
     return { head: [], body: [] };
   }
 
-  const head = Array.from(table.querySelectorAll('thead th')).map((th) => th.textContent.trim());
-  const body = Array.from(table.querySelectorAll('tbody tr')).map((row) =>
-    Array.from(row.querySelectorAll('td')).map((cell) => cell.textContent.trim())
-  );
+  const excludeHeadings = Array.isArray(options.excludeHeadings) ? options.excludeHeadings : [];
+  const headings = Array.from(table.querySelectorAll('thead th')).map((th) => th.textContent.trim());
+  const keepIndexes = headings
+    .map((heading, index) => (excludeHeadings.includes(heading) ? null : index))
+    .filter((index) => index !== null);
+
+  const head = keepIndexes.map((index) => headings[index]);
+  const body = Array.from(table.querySelectorAll('tbody tr')).map((row) => {
+    const cells = Array.from(row.querySelectorAll('td')).map((cell) => cell.textContent.trim());
+    return keepIndexes.map((index) => cells[index] || '');
+  });
 
   return { head, body };
 }
@@ -259,6 +308,7 @@ function wireDepositEditor() {
   const typeInput = document.getElementById('editDepositType');
   const mediumInput = document.getElementById('editDepositMedium');
   const referenceInput = document.getElementById('editDepositReference');
+  const discountInput = document.getElementById('editDepositDiscount');
 
   if (!idInput || !businessInput || !dateInput || !amountInput || !typeInput || !mediumInput || !referenceInput) {
     return;
@@ -271,8 +321,20 @@ function wireDepositEditor() {
       dateInput.value = button.getAttribute('data-date') || '';
       amountInput.value = button.getAttribute('data-amount') || '';
       typeInput.value = button.getAttribute('data-type') || 'deposit';
-      mediumInput.value = button.getAttribute('data-medium') || 'bank';
+      const mediumValue = (button.getAttribute('data-medium') || 'Bank').toLowerCase();
+      if (mediumValue === 'bank') {
+        mediumInput.value = 'Bank';
+      } else if (mediumValue === 'bkash') {
+        mediumInput.value = 'bKash';
+      } else if (mediumValue === 'cash') {
+        mediumInput.value = 'cash';
+      } else {
+        mediumInput.value = button.getAttribute('data-medium') || 'Bank';
+      }
       referenceInput.value = button.getAttribute('data-reference') || '';
+      if (discountInput) {
+        discountInput.value = button.getAttribute('data-discount') || '0';
+      }
     });
   });
 }

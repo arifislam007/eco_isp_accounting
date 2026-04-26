@@ -81,7 +81,7 @@ require __DIR__ . '/../views/layout/header.php';
                     <td><?php echo h($row['business_name']); ?></td>
                     <td><?php echo money($row['total_collection']); ?></td>
                     <td><?php echo money($row['total_deposit']); ?></td>
-                    <td><?php echo money($row['due_after_bonus']); ?></td>
+                    <td><?php echo money($row['current_due'] ?? $row['due_after_bonus']); ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

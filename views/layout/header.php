@@ -21,11 +21,12 @@ $pageTitle = $pageTitle ?? app_name();
         </button>
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/dashboard.php')); ?>">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/businesses.php')); ?>">Businesses</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/costs.php')); ?>">ISP Cost</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/charts.php')); ?>">Charts</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/import.php')); ?>">Import CSV</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/dashboard.php')); ?>">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/bill_info.php')); ?>">Bill Info</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/deposits.php')); ?>">Deposit</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/report.php')); ?>">Report</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/costs.php')); ?>">Cost Part</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/charts.php')); ?>">Graph/Chart</a></li>
             </ul>
             <div class="d-flex align-items-center gap-3 text-white-50">
                 <?php if ($activeUser): ?>

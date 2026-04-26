@@ -23,8 +23,20 @@ if ($redirectTarget === 'business_details') {
     }
 }
 
+if ($redirectTarget === 'bill_info') {
+    redirect_to(app_url('/bill_info.php?month=' . urlencode($month)));
+}
+
+if ($redirectTarget === 'deposits') {
+    redirect_to(app_url('/deposits.php?month=' . urlencode($month)));
+}
+
 if ($redirectTarget === 'costs') {
     redirect_to(app_url('/costs.php?month=' . urlencode($month)));
+}
+
+if ($redirectTarget === 'businesses') {
+    redirect_to(app_url('/businesses.php?month=' . urlencode($month)));
 }
 
 redirect_to(app_url('/dashboard.php?month=' . urlencode($month)));

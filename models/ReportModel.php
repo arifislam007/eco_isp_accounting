@@ -12,40 +12,33 @@ class ReportModel extends BaseModel
     public function getBusinessList(string $month): array
     {
         $businesses = $this->getBusinesses();
-        [$monthStart, $fifteenth, $nextMonth] = month_bounds($month);
+        $previousMonth = $this->previousMonthValue($month);
 
         $rows = [];
         foreach ($businesses as $business) {
             $businessId = (int) $business['id'];
-            $collection = $this->getCollectionRow($businessId, $month);
-            $commission = $this->getSingleValue('SELECT percentage FROM commissions WHERE business_id = :business_id LIMIT 1', $businessId);
-            $bonus = $this->getSingleValue('SELECT percentage FROM bonuses WHERE business_id = :business_id LIMIT 1', $businessId);
-            $discount = $this->getMonthlyDiscount($businessId, $month);
-            $totalDeposit = $this->getDepositTotal($businessId, $monthStart, $nextMonth);
-            $depositBy15th = $this->getDepositTotal($businessId, $monthStart, $fifteenth, true);
-
-            $totalCollection = (float) ($collection['total_collection'] ?? 0);
-            $commissionAmount = $totalCollection * $commission / 100;
-            $businessAmount = $totalCollection - $commissionAmount;
-            $bonusAmount = $businessAmount * $bonus / 100;
-            $dueBeforeBonus = $businessAmount - $discount - $totalDeposit;
-            $dueAfterBonus = $dueBeforeBonus - $bonusAmount;
+            $current = $this->getBusinessMonthFinancials($businessId, $month);
+            $previous = $this->getBusinessMonthFinancials($businessId, $previousMonth);
+            $carryForwardDue = max((float) $previous['due_after_bonus'], 0.0);
+            $currentDue = $carryForwardDue + (float) $current['due_after_bonus'];
 
             $rows[] = [
                 'business_id' => $businessId,
                 'business_name' => (string) $business['name'],
-                'total_users' => (int) ($collection['total_users'] ?? 0),
-                'total_collection' => $totalCollection,
-                'commission_percentage' => $commission,
-                'commission_amount' => $commissionAmount,
-                'business_amount' => $businessAmount,
-                'deposit_by_15th' => $depositBy15th,
-                'bonus_percentage' => $bonus,
-                'bonus_commission' => $bonusAmount,
-                'discount' => $discount,
-                'total_deposit' => $totalDeposit,
-                'due_before_bonus' => $dueBeforeBonus,
-                'due_after_bonus' => $dueAfterBonus,
+                'total_users' => (int) $current['total_users'],
+                'total_collection' => (float) $current['total_collection'],
+                'commission_percentage' => (float) $current['commission_percentage'],
+                'commission_amount' => (float) $current['commission_amount'],
+                'business_amount' => (float) $current['business_amount'],
+                'deposit_by_15th' => (float) $current['deposit_by_15th'],
+                'bonus_percentage' => (float) $current['bonus_percentage'],
+                'bonus_commission' => (float) $current['bonus_commission'],
+                'discount' => (float) $current['discount'],
+                'total_deposit' => (float) $current['total_deposit'],
+                'due_before_bonus' => (float) $current['due_before_bonus'],
+                'due_after_bonus' => (float) $current['due_after_bonus'],
+                'carry_forward_due' => $carryForwardDue,
+                'current_due' => $currentDue,
             ];
         }
 
@@ -55,40 +48,35 @@ class ReportModel extends BaseModel
     public function getBusinessDetails(int $businessId, string $month): array
     {
         [$monthStart, $fifteenth, $nextMonth] = month_bounds($month);
+        $previousMonth = $this->previousMonthValue($month);
         $business = $this->getBusiness($businessId);
-        $collection = $this->getCollectionRow($businessId, $month);
-        $commission = $this->getSingleValue('SELECT percentage FROM commissions WHERE business_id = :business_id LIMIT 1', $businessId);
-        $bonus = $this->getSingleValue('SELECT percentage FROM bonuses WHERE business_id = :business_id LIMIT 1', $businessId);
-        $discount = $this->getMonthlyDiscount($businessId, $month);
-        $totalDeposit = $this->getDepositTotal($businessId, $monthStart, $nextMonth);
-        $depositBy15th = $this->getDepositTotal($businessId, $monthStart, $fifteenth, true);
         $depositHistory = $this->getDepositHistory($businessId, $monthStart, $nextMonth);
         $costs = $this->getMonthlyCosts($month);
 
-        $totalCollection = (float) ($collection['total_collection'] ?? 0);
-        $commissionAmount = $totalCollection * $commission / 100;
-        $businessAmount = $totalCollection - $commissionAmount;
-        $bonusAmount = $businessAmount * $bonus / 100;
-        $dueBeforeBonus = $businessAmount - $discount - $totalDeposit;
-        $dueAfterBonus = $dueBeforeBonus - $bonusAmount;
+        $current = $this->getBusinessMonthFinancials($businessId, $month);
+        $previous = $this->getBusinessMonthFinancials($businessId, $previousMonth);
+        $carryForwardDue = max((float) $previous['due_after_bonus'], 0.0);
+        $finalDue = $carryForwardDue + (float) $current['due_after_bonus'];
 
         return [
             'business' => $business,
             'month' => $month,
             'month_label' => month_label($month),
             'summary' => [
-                'total_users' => (int) ($collection['total_users'] ?? 0),
-                'total_collection' => $totalCollection,
-                'commission_percentage' => $commission,
-                'commission_amount' => $commissionAmount,
-                'bill_amount' => $businessAmount,
-                'deposit_by_15th' => $depositBy15th,
-                'bonus_percentage' => $bonus,
-                'bonus_commission' => $bonusAmount,
-                'discount' => $discount,
-                'total_deposit' => $totalDeposit,
-                'due_before_bonus' => $dueBeforeBonus,
-                'final_due' => $dueAfterBonus,
+                'total_users' => (int) $current['total_users'],
+                'total_collection' => (float) $current['total_collection'],
+                'commission_percentage' => (float) $current['commission_percentage'],
+                'commission_amount' => (float) $current['commission_amount'],
+                'bill_amount' => (float) $current['business_amount'],
+                'deposit_by_15th' => (float) $current['deposit_by_15th'],
+                'bonus_percentage' => (float) $current['bonus_percentage'],
+                'bonus_commission' => (float) $current['bonus_commission'],
+                'discount' => (float) $current['discount'],
+                'total_deposit' => (float) $current['total_deposit'],
+                'due_before_bonus' => (float) $current['due_before_bonus'],
+                'monthly_due' => (float) $current['due_after_bonus'],
+                'carry_forward_due' => $carryForwardDue,
+                'final_due' => $finalDue,
             ],
             'deposit_history' => $depositHistory,
             'costs' => $costs,
@@ -147,14 +135,20 @@ class ReportModel extends BaseModel
         $totalCommission = 0.0;
         $totalDeposit = 0.0;
         $totalDue = 0.0;
+        $totalMonthlyDue = 0.0;
+        $totalCarryForward = 0.0;
         $totalUsers = 0;
+        $totalDiscount = 0.0;
 
         foreach ($businessList as $row) {
             $totalUsers += (int) $row['total_users'];
             $totalCollection += (float) $row['total_collection'];
             $totalCommission += (float) $row['commission_amount'];
             $totalDeposit += (float) $row['total_deposit'];
-            $totalDue += max((float) $row['due_after_bonus'], 0.0);
+            $totalMonthlyDue += (float) $row['due_after_bonus'];
+            $totalCarryForward += (float) ($row['carry_forward_due'] ?? 0);
+            $totalDue += max((float) $row['current_due'], 0.0);
+            $totalDiscount += (float) $row['discount'];
         }
 
         $totalCost = (float) ($costs['total_cost'] ?? 0);
@@ -166,12 +160,17 @@ class ReportModel extends BaseModel
                 'total_commission' => $totalCommission,
                 'total_deposit' => $totalDeposit,
                 'total_due' => $totalDue,
+                'monthly_due' => $totalMonthlyDue,
+                'carry_forward_due' => $totalCarryForward,
                 'total_users' => $totalUsers,
                 'total_cost' => $totalCost,
                 'profit' => $profit,
                 'isp_bill' => (float) ($costs['isp_bill'] ?? 0),
                 'software_cost' => (float) ($costs['software_cost'] ?? 0),
+                'salary_cost' => (float) ($costs['salary_cost'] ?? 0),
+                'electricity_cost' => (float) ($costs['electricity_cost'] ?? 0),
                 'others' => (float) ($costs['others'] ?? 0),
+                'discount_total' => $totalDiscount,
             ],
             'business_list' => $businessList,
             'costs' => $costs,
@@ -278,6 +277,8 @@ class ReportModel extends BaseModel
         $summary = [
             'isp_bill' => 0.0,
             'software_cost' => 0.0,
+            'salary_cost' => 0.0,
+            'electricity_cost' => 0.0,
             'others' => 0.0,
             'total_cost' => 0.0,
         ];
@@ -289,6 +290,10 @@ class ReportModel extends BaseModel
 
             if (str_contains($type, 'isp')) {
                 $summary['isp_bill'] += $amount;
+            } elseif (str_contains($type, 'salary')) {
+                $summary['salary_cost'] += $amount;
+            } elseif (str_contains($type, 'electric')) {
+                $summary['electricity_cost'] += $amount;
             } elseif (str_contains($type, 'software')) {
                 $summary['software_cost'] += $amount;
             } else {
@@ -297,5 +302,50 @@ class ReportModel extends BaseModel
         }
 
         return $summary;
+    }
+
+    private function previousMonthValue(string $month): string
+    {
+        $date = DateTime::createFromFormat('Y-m', $month);
+        if (!$date) {
+            $date = new DateTime(date('Y-m-01'));
+        }
+
+        $date->modify('first day of this month');
+        $date->modify('-1 month');
+        return $date->format('Y-m');
+    }
+
+    private function getBusinessMonthFinancials(int $businessId, string $month): array
+    {
+        [$monthStart, $fifteenth, $nextMonth] = month_bounds($month);
+        $collection = $this->getCollectionRow($businessId, $month);
+        $commission = $this->getSingleValue('SELECT percentage FROM commissions WHERE business_id = :business_id LIMIT 1', $businessId);
+        $bonus = $this->getSingleValue('SELECT percentage FROM bonuses WHERE business_id = :business_id LIMIT 1', $businessId);
+        $discount = $this->getMonthlyDiscount($businessId, $month);
+        $totalDeposit = $this->getDepositTotal($businessId, $monthStart, $nextMonth);
+        $depositBy15th = $this->getDepositTotal($businessId, $monthStart, $fifteenth, true);
+
+        $totalCollection = (float) ($collection['total_collection'] ?? 0);
+        $commissionAmount = $totalCollection * $commission / 100;
+        $businessAmount = $totalCollection - $commissionAmount;
+        $bonusAmount = $businessAmount * $bonus / 100;
+        $dueBeforeBonus = $businessAmount - $discount - $totalDeposit;
+        $dueAfterBonus = $dueBeforeBonus - $bonusAmount;
+
+        return [
+            'total_users' => (int) ($collection['total_users'] ?? 0),
+            'total_collection' => $totalCollection,
+            'commission_percentage' => $commission,
+            'commission_amount' => $commissionAmount,
+            'business_amount' => $businessAmount,
+            'deposit_by_15th' => $depositBy15th,
+            'bonus_percentage' => $bonus,
+            'bonus_commission' => $bonusAmount,
+            'discount' => $discount,
+            'total_deposit' => $totalDeposit,
+            'due_before_bonus' => $dueBeforeBonus,
+            'due_after_bonus' => $dueAfterBonus,
+        ];
     }
 }

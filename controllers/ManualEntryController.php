@@ -18,6 +18,7 @@ class ManualEntryController
             'billing' => $this->saveBillingEntry($payload),
             'billing_update' => $this->updateBillingEntry($payload),
             'billing_delete' => $this->deleteBillingEntry($payload),
+            'business_delete' => $this->deleteBusinessEntry($payload),
             'deposit' => $this->saveDepositEntry($payload),
             'deposit_update' => $this->updateDepositEntry($payload),
             'deposit_delete' => $this->deleteDepositEntry($payload),
@@ -81,9 +82,15 @@ class ManualEntryController
         $type = trim((string) ($payload['type'] ?? 'deposit')) ?: 'deposit';
         $medium = trim((string) ($payload['medium'] ?? 'cash')) ?: 'cash';
         $reference = trim((string) ($payload['reference'] ?? ''));
+        $discountAmount = max(0.0, (float) ($payload['discount_amount'] ?? 0));
 
         try {
             $this->importModel->insertDeposit($businessId, $amount, $date, $type, $medium, $reference);
+
+            if (array_key_exists('discount_amount', $payload)) {
+                $this->importModel->replaceMonthlyDiscount($businessId, substr($date, 0, 7), $discountAmount);
+            }
+
             return ['success' => true, 'message' => 'Deposit entry saved successfully.'];
         } catch (Throwable $e) {
             return ['success' => false, 'message' => 'Failed to save deposit entry: ' . $e->getMessage()];
@@ -194,9 +201,15 @@ class ManualEntryController
         $type = trim((string) ($payload['type'] ?? 'deposit')) ?: 'deposit';
         $medium = trim((string) ($payload['medium'] ?? 'cash')) ?: 'cash';
         $reference = trim((string) ($payload['reference'] ?? ''));
+        $discountAmount = max(0.0, (float) ($payload['discount_amount'] ?? 0));
 
         try {
             $this->importModel->updateDeposit($depositId, $businessId, $amount, $date, $type, $medium, $reference);
+
+            if (array_key_exists('discount_amount', $payload)) {
+                $this->importModel->replaceMonthlyDiscount($businessId, substr($date, 0, 7), $discountAmount);
+            }
+
             return ['success' => true, 'message' => 'Deposit entry updated successfully.'];
         } catch (Throwable $e) {
             return ['success' => false, 'message' => 'Failed to update deposit entry: ' . $e->getMessage()];
@@ -227,6 +240,21 @@ class ManualEntryController
             }
 
             return ['success' => false, 'message' => 'Failed to delete billing entry: ' . $e->getMessage()];
+        }
+    }
+
+    private function deleteBusinessEntry(array $payload): array
+    {
+        $businessId = (int) ($payload['business_id'] ?? 0);
+        if ($businessId <= 0) {
+            return ['success' => false, 'message' => 'Invalid business ID for delete.'];
+        }
+
+        try {
+            $this->importModel->deleteBusiness($businessId);
+            return ['success' => true, 'message' => 'Business deleted successfully.'];
+        } catch (Throwable $e) {
+            return ['success' => false, 'message' => 'Failed to delete business: ' . $e->getMessage()];
         }
     }
 

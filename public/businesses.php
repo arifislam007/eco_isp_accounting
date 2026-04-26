@@ -39,8 +39,19 @@ require __DIR__ . '/../views/layout/header.php';
                     <td><?php echo h($row['business_name']); ?></td>
                     <td><?php echo money($row['total_collection']); ?></td>
                     <td><?php echo money($row['total_deposit']); ?></td>
-                    <td><?php echo money($row['due_after_bonus']); ?></td>
-                    <td><a class="btn btn-sm btn-outline-dark" href="<?php echo h(app_url('/business_details.php?business_id=' . $row['business_id'] . '&month=' . $month)); ?>">View</a></td>
+                    <td><?php echo money($row['current_due'] ?? $row['due_after_bonus']); ?></td>
+                    <td>
+                        <div class="d-inline-flex gap-1 flex-wrap justify-content-end">
+                            <a class="btn btn-sm btn-outline-dark" href="<?php echo h(app_url('/business_details.php?business_id=' . $row['business_id'] . '&month=' . $month)); ?>">View</a>
+                            <form method="post" action="<?php echo h(app_url('/actions/save_manual_entry.php')); ?>" class="d-inline" onsubmit="return confirm('Delete this business and all related monthly data?');">
+                                <input type="hidden" name="entry_type" value="business_delete">
+                                <input type="hidden" name="business_id" value="<?php echo h((string) $row['business_id']); ?>">
+                                <input type="hidden" name="redirect_target" value="businesses">
+                                <input type="hidden" name="redirect_month" value="<?php echo h($month); ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
