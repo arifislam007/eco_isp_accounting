@@ -74,22 +74,32 @@ require __DIR__ . '/../views/layout/header.php';
                             <td><?php echo h($row['reference']); ?></td>
                             <td><?php echo h($row['type']); ?></td>
                             <td class="text-end">
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-outline-dark"
-                                    data-edit-deposit="1"
-                                    data-deposit-id="<?php echo h((string) $row['id']); ?>"
-                                    data-business-id="<?php echo h((string) $businessId); ?>"
-                                    data-date="<?php echo h($row['date']); ?>"
-                                    data-amount="<?php echo h((string) $row['amount']); ?>"
-                                    data-medium="<?php echo h($row['medium']); ?>"
-                                    data-reference="<?php echo h($row['reference']); ?>"
-                                    data-type="<?php echo h($row['type']); ?>"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#depositEditModal"
-                                >
-                                    Edit
-                                </button>
+                                <div class="d-inline-flex gap-1">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-dark"
+                                        data-edit-deposit="1"
+                                        data-deposit-id="<?php echo h((string) $row['id']); ?>"
+                                        data-business-id="<?php echo h((string) $businessId); ?>"
+                                        data-date="<?php echo h($row['date']); ?>"
+                                        data-amount="<?php echo h((string) $row['amount']); ?>"
+                                        data-medium="<?php echo h($row['medium']); ?>"
+                                        data-reference="<?php echo h($row['reference']); ?>"
+                                        data-type="<?php echo h($row['type']); ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#depositEditModal"
+                                    >
+                                        Edit
+                                    </button>
+                                    <form method="post" action="<?php echo h(app_url('/actions/save_manual_entry.php')); ?>" class="d-inline" onsubmit="return confirm('Delete this deposit entry?');">
+                                        <input type="hidden" name="entry_type" value="deposit_delete">
+                                        <input type="hidden" name="deposit_id" value="<?php echo h((string) $row['id']); ?>">
+                                        <input type="hidden" name="redirect_target" value="business_details">
+                                        <input type="hidden" name="redirect_business_id" value="<?php echo h((string) $businessId); ?>">
+                                        <input type="hidden" name="redirect_month" value="<?php echo h($month); ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

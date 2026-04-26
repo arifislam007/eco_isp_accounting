@@ -17,10 +17,13 @@ class ManualEntryController
         return match ($entryType) {
             'billing' => $this->saveBillingEntry($payload),
             'billing_update' => $this->updateBillingEntry($payload),
+            'billing_delete' => $this->deleteBillingEntry($payload),
             'deposit' => $this->saveDepositEntry($payload),
             'deposit_update' => $this->updateDepositEntry($payload),
+            'deposit_delete' => $this->deleteDepositEntry($payload),
             'cost' => $this->saveCostEntry($payload),
             'cost_update' => $this->updateCostEntry($payload),
+            'cost_delete' => $this->deleteCostEntry($payload),
             default => ['success' => false, 'message' => 'Invalid manual entry type.'],
         };
     }
@@ -197,6 +200,63 @@ class ManualEntryController
             return ['success' => true, 'message' => 'Deposit entry updated successfully.'];
         } catch (Throwable $e) {
             return ['success' => false, 'message' => 'Failed to update deposit entry: ' . $e->getMessage()];
+        }
+    }
+
+    private function deleteBillingEntry(array $payload): array
+    {
+        $businessId = (int) ($payload['business_id'] ?? 0);
+        if ($businessId <= 0) {
+            return ['success' => false, 'message' => 'Invalid business for billing delete.'];
+        }
+
+        $month = (string) ($payload['month'] ?? date('Y-m'));
+
+        $pdo = db();
+        $pdo->beginTransaction();
+
+        try {
+            $this->importModel->deleteCollectionForMonth($businessId, $month);
+            $this->importModel->deleteMonthlyDiscount($businessId, $month);
+            $pdo->commit();
+
+            return ['success' => true, 'message' => 'Billing entry deleted successfully.'];
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            return ['success' => false, 'message' => 'Failed to delete billing entry: ' . $e->getMessage()];
+        }
+    }
+
+    private function deleteDepositEntry(array $payload): array
+    {
+        $depositId = (int) ($payload['deposit_id'] ?? 0);
+        if ($depositId <= 0) {
+            return ['success' => false, 'message' => 'Invalid deposit ID.'];
+        }
+
+        try {
+            $this->importModel->deleteDeposit($depositId);
+            return ['success' => true, 'message' => 'Deposit entry deleted successfully.'];
+        } catch (Throwable $e) {
+            return ['success' => false, 'message' => 'Failed to delete deposit entry: ' . $e->getMessage()];
+        }
+    }
+
+    private function deleteCostEntry(array $payload): array
+    {
+        $costId = (int) ($payload['cost_id'] ?? 0);
+        if ($costId <= 0) {
+            return ['success' => false, 'message' => 'Invalid cost ID.'];
+        }
+
+        try {
+            $this->importModel->deleteCost($costId);
+            return ['success' => true, 'message' => 'Cost entry deleted successfully.'];
+        } catch (Throwable $e) {
+            return ['success' => false, 'message' => 'Failed to delete cost entry: ' . $e->getMessage()];
         }
     }
 

@@ -85,13 +85,11 @@ require __DIR__ . '/../views/layout/header.php';
                                 <th>Commission %</th>
                                 <th>Commission Amount</th>
                                 <th>Business Amount</th>
-                                <th>Deposit by 15th</th>
                                 <th>Bonus %</th>
                                 <th>Bonus Commission</th>
                                 <th>Discount</th>
                                 <th>Total Deposit</th>
-                                <th>Due Before Bonus</th>
-                                <th>Due After Bonus</th>
+                                <th>Current Due</th>
                                 <th class="text-end">Action</th>
                             </tr>
                             </thead>
@@ -104,31 +102,39 @@ require __DIR__ . '/../views/layout/header.php';
                                     <td><?php echo percent($row['commission_percentage']); ?>%</td>
                                     <td><?php echo money($row['commission_amount']); ?></td>
                                     <td><?php echo money($row['business_amount']); ?></td>
-                                    <td><?php echo money($row['deposit_by_15th']); ?></td>
                                     <td><?php echo percent($row['bonus_percentage']); ?>%</td>
                                     <td><?php echo money($row['bonus_commission']); ?></td>
                                     <td><?php echo money($row['discount']); ?></td>
                                     <td><?php echo money($row['total_deposit']); ?></td>
-                                    <td><?php echo money($row['due_before_bonus']); ?></td>
                                     <td><?php echo money($row['due_after_bonus']); ?></td>
                                     <td class="text-end">
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm btn-outline-dark"
-                                            data-edit-billing="1"
-                                            data-business-id="<?php echo h((string) $row['business_id']); ?>"
-                                            data-business-name="<?php echo h($row['business_name']); ?>"
-                                            data-month="<?php echo h($month); ?>"
-                                            data-users="<?php echo h((string) $row['total_users']); ?>"
-                                            data-collection="<?php echo h((string) $row['total_collection']); ?>"
-                                            data-commission="<?php echo h((string) $row['commission_percentage']); ?>"
-                                            data-bonus="<?php echo h((string) $row['bonus_percentage']); ?>"
-                                            data-discount="<?php echo h((string) $row['discount']); ?>"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#billingEditModal"
-                                        >
-                                            Edit
-                                        </button>
+                                        <div class="d-inline-flex gap-1">
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-outline-dark"
+                                                data-edit-billing="1"
+                                                data-business-id="<?php echo h((string) $row['business_id']); ?>"
+                                                data-business-name="<?php echo h($row['business_name']); ?>"
+                                                data-month="<?php echo h($month); ?>"
+                                                data-users="<?php echo h((string) $row['total_users']); ?>"
+                                                data-collection="<?php echo h((string) $row['total_collection']); ?>"
+                                                data-commission="<?php echo h((string) $row['commission_percentage']); ?>"
+                                                data-bonus="<?php echo h((string) $row['bonus_percentage']); ?>"
+                                                data-discount="<?php echo h((string) $row['discount']); ?>"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#billingEditModal"
+                                            >
+                                                Edit
+                                            </button>
+                                            <form method="post" action="<?php echo h(app_url('/actions/save_manual_entry.php')); ?>" class="d-inline" onsubmit="return confirm('Delete this billing entry?');">
+                                                <input type="hidden" name="entry_type" value="billing_delete">
+                                                <input type="hidden" name="business_id" value="<?php echo h((string) $row['business_id']); ?>">
+                                                <input type="hidden" name="month" value="<?php echo h($month); ?>">
+                                                <input type="hidden" name="redirect_target" value="dashboard">
+                                                <input type="hidden" name="redirect_month" value="<?php echo h($month); ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -176,22 +182,31 @@ require __DIR__ . '/../views/layout/header.php';
                             <td><?php echo h($deposit['reference']); ?></td>
                             <td><?php echo h($deposit['type']); ?></td>
                             <td class="text-end">
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-outline-dark"
-                                    data-edit-deposit="1"
-                                    data-deposit-id="<?php echo h((string) $deposit['id']); ?>"
-                                    data-business-id="<?php echo h((string) $deposit['business_id']); ?>"
-                                    data-date="<?php echo h($deposit['date']); ?>"
-                                    data-amount="<?php echo h((string) $deposit['amount']); ?>"
-                                    data-medium="<?php echo h($deposit['medium']); ?>"
-                                    data-reference="<?php echo h($deposit['reference']); ?>"
-                                    data-type="<?php echo h($deposit['type']); ?>"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#depositEditModal"
-                                >
-                                    Edit
-                                </button>
+                                <div class="d-inline-flex gap-1">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-dark"
+                                        data-edit-deposit="1"
+                                        data-deposit-id="<?php echo h((string) $deposit['id']); ?>"
+                                        data-business-id="<?php echo h((string) $deposit['business_id']); ?>"
+                                        data-date="<?php echo h($deposit['date']); ?>"
+                                        data-amount="<?php echo h((string) $deposit['amount']); ?>"
+                                        data-medium="<?php echo h($deposit['medium']); ?>"
+                                        data-reference="<?php echo h($deposit['reference']); ?>"
+                                        data-type="<?php echo h($deposit['type']); ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#depositEditModal"
+                                    >
+                                        Edit
+                                    </button>
+                                    <form method="post" action="<?php echo h(app_url('/actions/save_manual_entry.php')); ?>" class="d-inline" onsubmit="return confirm('Delete this deposit entry?');">
+                                        <input type="hidden" name="entry_type" value="deposit_delete">
+                                        <input type="hidden" name="deposit_id" value="<?php echo h((string) $deposit['id']); ?>">
+                                        <input type="hidden" name="redirect_target" value="dashboard">
+                                        <input type="hidden" name="redirect_month" value="<?php echo h($month); ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

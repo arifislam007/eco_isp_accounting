@@ -33,6 +33,15 @@ class ImportModel extends BaseModel
         ]);
     }
 
+    public function deleteCollectionForMonth(int $businessId, string $month): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM collections WHERE business_id = :business_id AND month = :month');
+        $stmt->execute([
+            'business_id' => $businessId,
+            'month' => $month,
+        ]);
+    }
+
     public function replaceMonthlyDiscount(int $businessId, string $month, float $amount): void
     {
         $delete = $this->pdo->prepare('DELETE FROM discounts WHERE business_id = :business_id AND month = :month');
@@ -44,6 +53,15 @@ class ImportModel extends BaseModel
         if ($amount > 0) {
             $this->insertDiscount($businessId, $amount, $month);
         }
+    }
+
+    public function deleteMonthlyDiscount(int $businessId, string $month): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM discounts WHERE business_id = :business_id AND month = :month');
+        $stmt->execute([
+            'business_id' => $businessId,
+            'month' => $month,
+        ]);
     }
 
     public function insertDeposit(int $businessId, float $amount, string $date, string $type, string $medium, string $reference): void
@@ -82,6 +100,14 @@ class ImportModel extends BaseModel
         ]);
     }
 
+    public function deleteDeposit(int $depositId): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM deposits WHERE id = :id');
+        $stmt->execute([
+            'id' => $depositId,
+        ]);
+    }
+
     public function insertCost(string $type, float $amount, string $month): void
     {
         $stmt = $this->pdo->prepare('INSERT INTO costs (type, amount, month) VALUES (:type, :amount, :month)');
@@ -100,6 +126,14 @@ class ImportModel extends BaseModel
             'type' => $type,
             'amount' => $amount,
             'month' => $month,
+        ]);
+    }
+
+    public function deleteCost(int $costId): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM costs WHERE id = :id');
+        $stmt->execute([
+            'id' => $costId,
         ]);
     }
 

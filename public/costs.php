@@ -68,19 +68,28 @@ require __DIR__ . '/../views/layout/header.php';
                             <td><?php echo money($costRow['amount']); ?></td>
                             <td><?php echo h($costRow['month']); ?></td>
                             <td class="text-end">
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-outline-dark"
-                                    data-edit-cost="1"
-                                    data-cost-id="<?php echo h((string) $costRow['id']); ?>"
-                                    data-cost-type="<?php echo h($costRow['type']); ?>"
-                                    data-cost-amount="<?php echo h((string) $costRow['amount']); ?>"
-                                    data-cost-month="<?php echo h($costRow['month']); ?>"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#costEditModal"
-                                >
-                                    Edit
-                                </button>
+                                <div class="d-inline-flex gap-1">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-dark"
+                                        data-edit-cost="1"
+                                        data-cost-id="<?php echo h((string) $costRow['id']); ?>"
+                                        data-cost-type="<?php echo h($costRow['type']); ?>"
+                                        data-cost-amount="<?php echo h((string) $costRow['amount']); ?>"
+                                        data-cost-month="<?php echo h($costRow['month']); ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#costEditModal"
+                                    >
+                                        Edit
+                                    </button>
+                                    <form method="post" action="<?php echo h(app_url('/actions/save_manual_entry.php')); ?>" class="d-inline" onsubmit="return confirm('Delete this cost entry?');">
+                                        <input type="hidden" name="entry_type" value="cost_delete">
+                                        <input type="hidden" name="cost_id" value="<?php echo h((string) $costRow['id']); ?>">
+                                        <input type="hidden" name="redirect_target" value="costs">
+                                        <input type="hidden" name="redirect_month" value="<?php echo h($month); ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

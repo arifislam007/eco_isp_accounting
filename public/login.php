@@ -39,7 +39,7 @@ if (is_post()) {
             <div class="mb-4">
                 <div class="badge text-bg-dark mb-3">ISP Billing</div>
                 <h1 class="h3 fw-bold mb-2">Sign in</h1>
-                <p class="text-muted mb-0">Use your admin credentials to open the dashboard.</p>
+                <p class="text-muted mb-0">Sign in to continue to your dashboard.</p>
             </div>
 
             <?php if ($message = flash('error')): ?>
@@ -56,7 +56,6 @@ if (is_post()) {
                     <input type="password" name="password" class="form-control form-control-lg" required>
                 </div>
                 <button type="submit" class="btn btn-primary btn-lg w-100">Login</button>
-                <p class="small text-muted mb-0">Demo credentials: admin@isp.local / admin123</p>
             </form>
         </div>
     </div>

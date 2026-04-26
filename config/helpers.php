@@ -49,11 +49,17 @@ function app_name(): string
 
 function app_url(string $path = ''): string
 {
-    $base = rtrim((string) env_value('APP_URL', ''), '/');
-    if ($base === '') {
+    $base = '';
+
+    if (!empty($_SERVER['HTTP_HOST'])) {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
+        $host = (string) $_SERVER['HTTP_HOST'];
         $base = $scheme . '://' . $host;
+    } else {
+        $base = rtrim((string) env_value('APP_URL', ''), '/');
+        if ($base === '') {
+            $base = 'http://localhost:8080';
+        }
     }
 
     return $base . '/' . ltrim($path, '/');
