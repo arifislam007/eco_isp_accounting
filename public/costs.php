@@ -7,6 +7,11 @@ require_login();
 $month = month_value($_GET['month'] ?? null);
 $dashboardController = new DashboardController();
 $dashboardData = $dashboardController->index($month);
+
+// Fetch available cost types
+$importModel = new ImportModel();
+$costTypes = $importModel->getAllCostTypes();
+
 $pageTitle = 'ISP Cost - ' . app_name();
 require __DIR__ . '/../views/layout/header.php';
 ?>
@@ -102,7 +107,10 @@ require __DIR__ . '/../views/layout/header.php';
 
     <div class="col-12 col-xl-5">
         <div class="panel-card mb-4">
-            <h2 class="h5 mb-3">Manual Cost Entry</h2>
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h2 class="h5 mb-0">Manual Cost Entry</h2>
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#costTypeCreateModal">+ New Type</button>
+            </div>
             <form method="post" action="<?php echo h(app_url('/actions/save_manual_entry.php')); ?>" class="row g-3">
                 <input type="hidden" name="entry_type" value="cost">
                 <input type="hidden" name="redirect_target" value="costs">
@@ -110,10 +118,10 @@ require __DIR__ . '/../views/layout/header.php';
                 <div class="col-12">
                     <label class="form-label">Cost Type</label>
                     <select class="form-select" name="cost_type" required>
-                        <option value="ISP Bill Payment">ISP Bill Payment</option>
-                        <option value="Salary">Salary</option>
-                        <option value="Electricity Bill">Electricity Bill</option>
-                        <option value="Other">Other</option>
+                        <option value="">Select a cost type</option>
+                        <?php foreach ($costTypes as $type): ?>
+                            <option value="<?php echo h($type['name']); ?>"><?php echo h($type['name']); ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="col-12">
@@ -184,6 +192,35 @@ require __DIR__ . '/../views/layout/header.php';
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-dark">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Create Cost Type Modal -->
+<div class="modal fade" id="costTypeCreateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Cost Type</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="<?php echo h(app_url('/actions/cost_type_action.php')); ?>">
+                <div class="modal-body row g-3">
+                    <input type="hidden" name="action" value="create">
+                    <div class="col-12">
+                        <label class="form-label">Cost Type Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g., Internet, Office Supplies" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description (Optional)</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Describe this cost type..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-dark">Create Type</button>
                 </div>
             </form>
         </div>

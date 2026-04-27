@@ -178,4 +178,44 @@ class ImportModel extends BaseModel
             'month' => $month,
         ]);
     }
+
+    public function getAllCostTypes(): array
+    {
+        $stmt = $this->pdo->query('SELECT id, name, description, is_active FROM cost_types WHERE is_active = 1 ORDER BY name ASC');
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function getCostTypeById(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT id, name, description, is_active FROM cost_types WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    public function insertCostType(string $name, string $description = ''): int
+    {
+        $stmt = $this->pdo->prepare('INSERT INTO cost_types (name, description, is_active) VALUES (:name, :description, 1)');
+        $stmt->execute([
+            'name' => $name,
+            'description' => $description,
+        ]);
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    public function updateCostType(int $id, string $name, string $description = ''): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE cost_types SET name = :name, description = :description WHERE id = :id');
+        $stmt->execute([
+            'id' => $id,
+            'name' => $name,
+            'description' => $description,
+        ]);
+    }
+
+    public function deleteCostType(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM cost_types WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
 }
