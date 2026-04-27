@@ -218,6 +218,10 @@ class ManualEntryController
 
     private function deleteBillingEntry(array $payload): array
     {
+        if (!user_can('delete')) {
+            return ['success' => false, 'message' => 'Permission denied. Only managers and admins can delete entries.'];
+        }
+
         $businessId = (int) ($payload['business_id'] ?? 0);
         if ($businessId <= 0) {
             return ['success' => false, 'message' => 'Invalid business for billing delete.'];
@@ -245,6 +249,10 @@ class ManualEntryController
 
     private function deleteBusinessEntry(array $payload): array
     {
+        if (!user_can('delete')) {
+            return ['success' => false, 'message' => 'Permission denied. Only managers and admins can delete entries.'];
+        }
+
         $businessId = (int) ($payload['business_id'] ?? 0);
         if ($businessId <= 0) {
             return ['success' => false, 'message' => 'Invalid business ID for delete.'];
@@ -260,6 +268,10 @@ class ManualEntryController
 
     private function deleteDepositEntry(array $payload): array
     {
+        if (!user_can('delete')) {
+            return ['success' => false, 'message' => 'Permission denied. Only managers and admins can delete entries.'];
+        }
+
         $depositId = (int) ($payload['deposit_id'] ?? 0);
         if ($depositId <= 0) {
             return ['success' => false, 'message' => 'Invalid deposit ID.'];
@@ -275,6 +287,10 @@ class ManualEntryController
 
     private function deleteCostEntry(array $payload): array
     {
+        if (!user_can('delete')) {
+            return ['success' => false, 'message' => 'Permission denied. Only managers and admins can delete entries.'];
+        }
+
         $costId = (int) ($payload['cost_id'] ?? 0);
         if ($costId <= 0) {
             return ['success' => false, 'message' => 'Invalid cost ID.'];

@@ -112,6 +112,28 @@ require __DIR__ . '/../views/layout/header.php';
             </div>
         </div>
 
+        <div class="panel-card h-100 mb-4">
+            <h2 class="h5 mb-3">Cost Entries</h2>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0" id="reportCostTable">
+                    <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Amount</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($dashboardData['cost_rows'] as $cost): ?>
+                        <tr>
+                            <td><?php echo h($cost['type']); ?></td>
+                            <td><?php echo money($cost['amount']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="panel-card h-100">
             <h2 class="h5 mb-3">Cost Breakdown</h2>
             <div class="vstack gap-2">

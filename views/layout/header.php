@@ -27,10 +27,16 @@ $pageTitle = $pageTitle ?? app_name();
                 <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/report.php')); ?>">Report</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/costs.php')); ?>">Cost Part</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/charts.php')); ?>">Graph/Chart</a></li>
+                <?php if (user_can('manage_users')): ?>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo h(app_url('/users.php')); ?>">Users</a></li>
+                <?php endif; ?>
             </ul>
-            <div class="d-flex align-items-center gap-3 text-white-50">
+            <div class="d-flex align-items-center gap-2 text-white-50">
                 <?php if ($activeUser): ?>
-                    <span class="small"><?php echo h($activeUser['name']); ?></span>
+                    <span class="small">
+                        <span class="badge bg-secondary"><?php echo h(ucfirst(current_user_role())); ?></span>
+                        <?php echo h($activeUser['name']); ?>
+                    </span>
                     <a class="btn btn-outline-light btn-sm" href="<?php echo h(app_url('/logout.php')); ?>">Logout</a>
                 <?php endif; ?>
             </div>

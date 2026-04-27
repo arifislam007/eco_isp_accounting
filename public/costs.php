@@ -47,13 +47,13 @@ require __DIR__ . '/../views/layout/header.php';
 
 <div class="row g-4">
     <div class="col-12 col-xl-7">
-        <div class="panel-card mb-4">
+        <div class="panel-card">
             <div class="d-flex align-items-center justify-content-between mb-3">
-                <h2 class="h5 mb-0">Cost Rows</h2>
-                <span class="text-muted small"><?php echo count($dashboardData['cost_rows']); ?> rows</span>
+                <h2 class="h5 mb-0">Cost Entries</h2>
+                <span class="text-muted small"><?php echo count($dashboardData['cost_rows']); ?> entries</span>
             </div>
             <div class="table-responsive">
-                <table class="table table-sm align-middle">
+                <table class="table table-striped align-middle" id="costEntriesTable">
                     <thead>
                     <tr>
                         <th>Type</th>
@@ -98,14 +98,16 @@ require __DIR__ . '/../views/layout/header.php';
                 </table>
             </div>
         </div>
+    </div>
 
-        <div class="panel-card">
-            <h2 class="h5 mb-3">Add Cost Entry</h2>
+    <div class="col-12 col-xl-5">
+        <div class="panel-card mb-4">
+            <h2 class="h5 mb-3">Manual Cost Entry</h2>
             <form method="post" action="<?php echo h(app_url('/actions/save_manual_entry.php')); ?>" class="row g-3">
                 <input type="hidden" name="entry_type" value="cost">
                 <input type="hidden" name="redirect_target" value="costs">
                 <input type="hidden" name="redirect_month" value="<?php echo h($month); ?>">
-                <div class="col-12 col-md-4">
+                <div class="col-12">
                     <label class="form-label">Cost Type</label>
                     <select class="form-select" name="cost_type" required>
                         <option value="ISP Bill Payment">ISP Bill Payment</option>
@@ -114,21 +116,20 @@ require __DIR__ . '/../views/layout/header.php';
                         <option value="Other">Other</option>
                     </select>
                 </div>
-                <div class="col-12 col-md-4">
+                <div class="col-12">
                     <label class="form-label">Amount</label>
                     <input type="number" class="form-control" name="cost_amount" min="0" step="0.01" required>
                 </div>
-                <div class="col-12 col-md-4">
+                <div class="col-12">
                     <label class="form-label">Month</label>
                     <input type="month" class="form-control" name="cost_month" value="<?php echo h($month); ?>" required>
                 </div>
                 <div class="col-12 d-flex justify-content-end">
-                    <button class="btn btn-dark">Save Cost</button>
+                    <button class="btn btn-dark">Add Cost Entry</button>
                 </div>
             </form>
         </div>
-    </div>
-    <div class="col-12 col-xl-5">
+
         <div class="panel-card mb-4">
             <h2 class="h5 mb-3">Monthly Summary</h2>
             <div class="vstack gap-2">
@@ -138,6 +139,7 @@ require __DIR__ . '/../views/layout/header.php';
                 <div class="d-flex justify-content-between"><span>Discount</span><strong><?php echo money($dashboardData['summary']['discount_total'] ?? 0); ?></strong></div>
             </div>
         </div>
+
         <div class="panel-card">
             <h2 class="h5 mb-3">Cost Breakdown</h2>
             <div class="vstack gap-2">

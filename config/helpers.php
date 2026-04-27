@@ -134,3 +134,36 @@ function is_post(): bool
 {
     return ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
 }
+
+function current_user_role(): string
+{
+    $user = current_user();
+    return $user['role'] ?? 'viewer';
+}
+
+function user_can(string $action, ?string $resource = null): bool
+{
+    $role = current_user_role();
+
+    $permissions = [
+        'admin' => ['create', 'read', 'update', 'delete', 'manage_users', 'view_admin'],
+        'manager' => ['create', 'read', 'update', 'view_reports'],
+        'viewer' => ['read', 'view_reports'],
+    ];
+
+    $userPermissions = $permissions[$role] ?? [];
+    return in_array($action, $userPermissions, true);
+}
+
+function require_role(string $role): void
+{
+    if (current_user_role() !== $role && current_user_role() !== 'admin') {
+        http_response_code(403);
+        die('Access denied. Required role: ' . $role);
+    }
+}
+
+function require_admin(): void
+{
+    require_role('admin');
+}

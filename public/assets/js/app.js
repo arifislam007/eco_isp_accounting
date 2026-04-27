@@ -204,6 +204,7 @@ function renderReportPdf(doc, reportData) {
   const title = reportData.title || 'Monthly Report';
   const billInfo = extractTableData('reportBillTable', { excludeHeadings: ['Action'] });
   const paymentInfo = extractTableData('reportPaymentTable');
+  const costInfo = extractTableData('reportCostTable');
 
   doc.setFontSize(16);
   doc.text(title, 36, 36);
@@ -233,6 +234,22 @@ function renderReportPdf(doc, reportData) {
       headStyles: { fillColor: [32, 201, 151] },
       margin: { left: 350, right: 24 },
       tableWidth: 470,
+    });
+  }
+
+  if (costInfo.head.length && doc.autoTable) {
+    const startYPos = Math.max(
+      doc.lastAutoTable ? doc.lastAutoTable.finalY + 12 : 300,
+      doc.lastAutoTable ? doc.lastAutoTable.finalY + 12 : 300
+    );
+    doc.autoTable({
+      head: [costInfo.head],
+      body: costInfo.body,
+      startY: startYPos,
+      theme: 'striped',
+      styles: { fontSize: 8, cellPadding: 3 },
+      headStyles: { fillColor: [108, 117, 125] },
+      margin: { left: 36, right: 36 },
     });
   }
 }
